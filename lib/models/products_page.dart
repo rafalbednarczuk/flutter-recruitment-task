@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:json_annotation/json_annotation.dart';
 
 part 'products_page.g.dart';
@@ -98,8 +100,18 @@ class Tag {
 
   final String tag;
   final String label;
-  final String color;
-  final String labelColor;
+  @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
+  final Color color;
+  @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
+  final Color labelColor;
+}
+
+Color _colorFromJson(String color) {
+  return Color(int.parse(color.substring(1).padLeft(8, 'F'), radix: 16));
+}
+
+String _colorToJson(Color color) {
+  return "#${color.value.toRadixString(16).padLeft(8, '0')}";
 }
 
 @JsonSerializable()

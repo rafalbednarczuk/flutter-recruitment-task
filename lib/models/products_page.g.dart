@@ -99,15 +99,15 @@ Map<String, dynamic> _$OfferToJson(Offer instance) => <String, dynamic>{
 Tag _$TagFromJson(Map<String, dynamic> json) => Tag(
       tag: json['tag'] as String,
       label: json['label'] as String,
-      color: json['color'] as String,
-      labelColor: json['labelColor'] as String,
+      color: _colorFromJson(json['color'] as String),
+      labelColor: _colorFromJson(json['labelColor'] as String),
     );
 
 Map<String, dynamic> _$TagToJson(Tag instance) => <String, dynamic>{
       'tag': instance.tag,
       'label': instance.label,
-      'color': instance.color,
-      'labelColor': instance.labelColor,
+      'color': _colorToJson(instance.color),
+      'labelColor': _colorToJson(instance.labelColor),
     };
 
 Price _$PriceFromJson(Map<String, dynamic> json) => Price(

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_recruitment_task/models/products_page.dart';
@@ -112,14 +110,14 @@ class _TagWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const possibleColors = Colors.primaries;
-    final color = possibleColors[Random().nextInt(possibleColors.length)];
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Chip(
-        color: MaterialStateProperty.all(color),
-        label: Text(tag.label),
+        color: MaterialStateProperty.all(tag.color),
+        label: Text(
+          tag.label,
+          style: TextStyle(color: tag.labelColor),
+        ),
       ),
     );
   }
