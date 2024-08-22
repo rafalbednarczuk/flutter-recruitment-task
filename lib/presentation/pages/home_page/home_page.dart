@@ -7,24 +7,37 @@ import 'package:flutter_recruitment_task/presentation/widgets/big_text.dart';
 const _mainPadding = EdgeInsets.all(16.0);
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final String? scrollToProductId;
+
+  const HomePage({super.key, this.scrollToProductId});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const BigText('Products'),
-      ),
-      body: Padding(
-        padding: _mainPadding,
-        child: BlocBuilder<HomeCubit, HomeState>(
-          builder: (context, state) {
-            return switch (state) {
-              Error() => BigText('Error: ${state.error}'),
-              Loading() => const BigText('Loading...'),
-              Loaded() => _LoadedWidget(state: state),
-            };
-          },
+    return BlocProvider<HomeCubit>(
+      create: (context) {
+        final cubit = HomeCubit(RepositoryProvider.of(context));
+        if (scrollToProductId != null) {
+          cubit.getPagesUntilProductIsFound(scrollToProductId!);
+        } else {
+          cubit.getNextPage();
+        }
+        return cubit;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const BigText('Products'),
+        ),
+        body: Padding(
+          padding: _mainPadding,
+          child: BlocBuilder<HomeCubit, HomeState>(
+            builder: (context, state) {
+              return switch (state) {
+                Error() => BigText('Error: ${state.error}'),
+                Loading() => const BigText('Loading...'),
+                Loaded() => _LoadedWidget(state: state),
+              };
+            },
+          ),
         ),
       ),
     );

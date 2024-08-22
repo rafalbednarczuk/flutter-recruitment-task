@@ -12,9 +12,10 @@ class Loading extends HomeState {
 }
 
 class Loaded extends HomeState {
-  const Loaded({required this.pages});
+  const Loaded({required this.pages, required this.scrollToProductIndex});
 
   final List<ProductsPage> pages;
+  final int? scrollToProductIndex;
 }
 
 class Error extends HomeState {
@@ -37,9 +38,31 @@ class HomeCubit extends Cubit<HomeState> {
       final newPage = await _productsRepository.getProductsPage(_param);
       _param = _param.increasePageNumber();
       _pages.add(newPage);
-      emit(Loaded(pages: _pages));
+      emit(Loaded(pages: _pages, scrollToProductIndex: null));
     } catch (e) {
       emit(Error(error: e));
+    }
+  }
+
+  Future<void> getPagesUntilProductIsFound(String productId) async {
+    while (true) {
+      await getNextPage();
+      if (state is! Loaded) {
+        return;
+      }
+      final products = _pages
+          .map((page) => page.products)
+          .expand((product) => product)
+          .toList();
+      final productIndex =
+          products.indexWhere((product) => product.id == productId);
+      if (productIndex != -1) {
+        emit(Loaded(pages: _pages, scrollToProductIndex: productIndex));
+        emit(Loaded(pages: _pages, scrollToProductIndex: null));
+        return;
+      }
+      final totalPages = _pages.lastOrNull?.totalPages;
+      if (totalPages != null && _param.pageNumber > totalPages) return;
     }
   }
 }
