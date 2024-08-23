@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_recruitment_task/models/product_filter.dart';
 import 'package:flutter_recruitment_task/models/products_page.dart';
 import 'package:flutter_recruitment_task/presentation/pages/home_page/home_cubit.dart';
+import 'package:flutter_recruitment_task/presentation/pages/products_filter_page/product_filter_page.dart';
 import 'package:flutter_recruitment_task/presentation/widgets/big_text.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -53,6 +55,18 @@ class _HomePageState extends State<HomePage> {
         child: Scaffold(
           appBar: AppBar(
             title: const BigText('Products'),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(ProductFilterPage.page(ProductFilter.cleared()));
+                  },
+                  child: const Text("Filter"),
+                ),
+              )
+            ],
           ),
           body: Padding(
             padding: _mainPadding,
