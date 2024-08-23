@@ -3,40 +3,70 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_recruitment_task/models/products_page.dart';
 import 'package:flutter_recruitment_task/presentation/pages/home_page/home_cubit.dart';
 import 'package:flutter_recruitment_task/presentation/widgets/big_text.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 const _mainPadding = EdgeInsets.all(16.0);
+const _scrollToProductDuration = Duration(milliseconds: 300);
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   final String? scrollToProductId;
 
   const HomePage({super.key, this.scrollToProductId});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late ItemScrollController _itemScrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _itemScrollController = ItemScrollController();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<HomeCubit>(
       create: (context) {
         final cubit = HomeCubit(RepositoryProvider.of(context));
-        if (scrollToProductId != null) {
-          cubit.getPagesUntilProductIsFound(scrollToProductId!);
+        if (widget.scrollToProductId != null) {
+          cubit.getPagesUntilProductIsFound(widget.scrollToProductId!);
         } else {
           cubit.getNextPage();
         }
         return cubit;
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const BigText('Products'),
-        ),
-        body: Padding(
-          padding: _mainPadding,
-          child: BlocBuilder<HomeCubit, HomeState>(
-            builder: (context, state) {
-              return switch (state) {
-                Error() => BigText('Error: ${state.error}'),
-                Loading() => const BigText('Loading...'),
-                Loaded() => _LoadedWidget(state: state),
-              };
-            },
+      child: BlocListener<HomeCubit, HomeState>(
+        listener: (context, state) {
+          if (state is Loaded && state.scrollToProductIndex != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _itemScrollController.scrollTo(
+                index: state.scrollToProductIndex!,
+                duration: _scrollToProductDuration,
+                curve: Curves.easeInOut,
+              );
+            });
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: const BigText('Products'),
+          ),
+          body: Padding(
+            padding: _mainPadding,
+            child: BlocBuilder<HomeCubit, HomeState>(
+              builder: (context, state) {
+                return switch (state) {
+                  Error() => BigText('Error: ${state.error}'),
+                  Loading() => const BigText('Loading...'),
+                  Loaded() => _LoadedWidget(
+                      state: state,
+                      itemScrollController: _itemScrollController),
+                };
+              },
+            ),
           ),
         ),
       ),
@@ -47,25 +77,11 @@ class HomePage extends StatelessWidget {
 class _LoadedWidget extends StatelessWidget {
   const _LoadedWidget({
     required this.state,
+    required this.itemScrollController,
   });
 
   final Loaded state;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        _ProductsSliverList(state: state),
-        const _GetNextPageButton(),
-      ],
-    );
-  }
-}
-
-class _ProductsSliverList extends StatelessWidget {
-  const _ProductsSliverList({required this.state});
-
-  final Loaded state;
+  final ItemScrollController itemScrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -73,10 +89,15 @@ class _ProductsSliverList extends StatelessWidget {
         .map((page) => page.products)
         .expand((product) => product)
         .toList();
-
-    return SliverList.separated(
-      itemCount: products.length,
-      itemBuilder: (context, index) => _ProductCard(products[index]),
+    return ScrollablePositionedList.separated(
+      itemScrollController: itemScrollController,
+      itemCount: products.length + 1,
+      itemBuilder: (context, index) {
+        if (index == products.length) {
+          return const _GetNextPageButton();
+        }
+        return _ProductCard(products[index]);
+      },
       separatorBuilder: (context, index) => const Divider(),
     );
   }
@@ -141,11 +162,9 @@ class _GetNextPageButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: TextButton(
-        onPressed: context.read<HomeCubit>().getNextPage,
-        child: const BigText('Get next page'),
-      ),
+    return TextButton(
+      onPressed: context.read<HomeCubit>().getNextPage,
+      child: const BigText('Get next page'),
     );
   }
 }
