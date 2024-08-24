@@ -17,8 +17,8 @@ class App extends StatelessWidget {
       home: RepositoryProvider.value(
         value: productsRepository,
         child: const HomePage(
-          scrollToProductId: "62",
-        ),
+            // scrollToProductId: "62",
+            ),
       ),
     );
   }

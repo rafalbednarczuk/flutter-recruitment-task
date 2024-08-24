@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_recruitment_task/models/product_filter.dart';
 import 'package:flutter_recruitment_task/models/products_page.dart';
 import 'package:flutter_recruitment_task/presentation/pages/home_page/home_cubit.dart';
 import 'package:flutter_recruitment_task/presentation/pages/home_page/home_state.dart';
@@ -59,12 +58,22 @@ class _HomePageState extends State<HomePage> {
             actions: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: OutlinedButton(
-                  onPressed: () async {
-                    Navigator.of(context)
-                        .push(ProductFilterPage.page(ProductFilter.cleared()));
-                  },
-                  child: const Text("Filter"),
+                child: Builder(
+                  builder: (context) => OutlinedButton(
+                    onPressed: () async {
+                      final currentFilter = BlocProvider.of<HomeCubit>(context)
+                          .state
+                          .productFilter;
+                      final newFilter = await Navigator.of(context)
+                          .push(ProductFilterPage.page(currentFilter));
+                      if (!context.mounted) return;
+                      if (newFilter != null) {
+                        BlocProvider.of<HomeCubit>(context)
+                            .loadFirstPageWithFilter(newFilter);
+                      }
+                    },
+                    child: const Text("Filter"),
+                  ),
                 ),
               )
             ],
@@ -73,7 +82,7 @@ class _HomePageState extends State<HomePage> {
             padding: _mainPadding,
             child: BlocBuilder<HomeCubit, HomeState>(
               builder: (context, state) {
-                if (state.isLoading) {
+                if (state.isLoading && state.pages == null) {
                   return const BigText('Loading...');
                 }
                 if (state.error != null) {

@@ -20,6 +20,7 @@ mixin _$HomeState {
   int? get scrollToProductIndex => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   Object? get error => throw _privateConstructorUsedError;
+  ProductFilter get productFilter => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $HomeStateCopyWith<HomeState> get copyWith =>
@@ -35,7 +36,10 @@ abstract class $HomeStateCopyWith<$Res> {
       {List<ProductsPage>? pages,
       int? scrollToProductIndex,
       bool isLoading,
-      Object? error});
+      Object? error,
+      ProductFilter productFilter});
+
+  $ProductFilterCopyWith<$Res> get productFilter;
 }
 
 /// @nodoc
@@ -55,6 +59,7 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? scrollToProductIndex = freezed,
     Object? isLoading = null,
     Object? error = freezed,
+    Object? productFilter = null,
   }) {
     return _then(_value.copyWith(
       pages: freezed == pages
@@ -70,7 +75,19 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
       error: freezed == error ? _value.error : error,
+      productFilter: null == productFilter
+          ? _value.productFilter
+          : productFilter // ignore: cast_nullable_to_non_nullable
+              as ProductFilter,
     ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $ProductFilterCopyWith<$Res> get productFilter {
+    return $ProductFilterCopyWith<$Res>(_value.productFilter, (value) {
+      return _then(_value.copyWith(productFilter: value) as $Val);
+    });
   }
 }
 
@@ -86,7 +103,11 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       {List<ProductsPage>? pages,
       int? scrollToProductIndex,
       bool isLoading,
-      Object? error});
+      Object? error,
+      ProductFilter productFilter});
+
+  @override
+  $ProductFilterCopyWith<$Res> get productFilter;
 }
 
 /// @nodoc
@@ -104,6 +125,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? scrollToProductIndex = freezed,
     Object? isLoading = null,
     Object? error = freezed,
+    Object? productFilter = null,
   }) {
     return _then(_$HomeStateImpl(
       pages: freezed == pages
@@ -119,6 +141,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
       error: freezed == error ? _value.error : error,
+      productFilter: null == productFilter
+          ? _value.productFilter
+          : productFilter // ignore: cast_nullable_to_non_nullable
+              as ProductFilter,
     ));
   }
 }
@@ -130,7 +156,8 @@ class _$HomeStateImpl implements _HomeState {
       {required final List<ProductsPage>? pages,
       required this.scrollToProductIndex,
       required this.isLoading,
-      required this.error})
+      required this.error,
+      required this.productFilter})
       : _pages = pages;
 
   final List<ProductsPage>? _pages;
@@ -149,10 +176,12 @@ class _$HomeStateImpl implements _HomeState {
   final bool isLoading;
   @override
   final Object? error;
+  @override
+  final ProductFilter productFilter;
 
   @override
   String toString() {
-    return 'HomeState(pages: $pages, scrollToProductIndex: $scrollToProductIndex, isLoading: $isLoading, error: $error)';
+    return 'HomeState(pages: $pages, scrollToProductIndex: $scrollToProductIndex, isLoading: $isLoading, error: $error, productFilter: $productFilter)';
   }
 
   @override
@@ -165,7 +194,9 @@ class _$HomeStateImpl implements _HomeState {
                 other.scrollToProductIndex == scrollToProductIndex) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
-            const DeepCollectionEquality().equals(other.error, error));
+            const DeepCollectionEquality().equals(other.error, error) &&
+            (identical(other.productFilter, productFilter) ||
+                other.productFilter == productFilter));
   }
 
   @override
@@ -174,7 +205,8 @@ class _$HomeStateImpl implements _HomeState {
       const DeepCollectionEquality().hash(_pages),
       scrollToProductIndex,
       isLoading,
-      const DeepCollectionEquality().hash(error));
+      const DeepCollectionEquality().hash(error),
+      productFilter);
 
   @JsonKey(ignore: true)
   @override
@@ -188,7 +220,8 @@ abstract class _HomeState implements HomeState {
       {required final List<ProductsPage>? pages,
       required final int? scrollToProductIndex,
       required final bool isLoading,
-      required final Object? error}) = _$HomeStateImpl;
+      required final Object? error,
+      required final ProductFilter productFilter}) = _$HomeStateImpl;
 
   @override
   List<ProductsPage>? get pages;
@@ -198,6 +231,8 @@ abstract class _HomeState implements HomeState {
   bool get isLoading;
   @override
   Object? get error;
+  @override
+  ProductFilter get productFilter;
   @override
   @JsonKey(ignore: true)
   _$$HomeStateImplCopyWith<_$HomeStateImpl> get copyWith =>

@@ -1,20 +1,20 @@
-class ProductFilter {
-  ProductFilter({
-    required this.name,
-    required this.bestOfferOnly,
-    required this.minimumPrice,
-    required this.maximumPrice,
-  });
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  factory ProductFilter.cleared() => ProductFilter(
+part 'product_filter.freezed.dart';
+
+@freezed
+class ProductFilter with _$ProductFilter {
+  const factory ProductFilter({
+    required String? name,
+    required bool bestOfferOnly,
+    required double? minimumPrice,
+    required double? maximumPrice,
+  }) = _ProductFilter;
+
+  factory ProductFilter.cleared() => const ProductFilter(
         name: null,
         bestOfferOnly: false,
         minimumPrice: null,
         maximumPrice: null,
       );
-
-  final String? name;
-  final bool bestOfferOnly;
-  final double? minimumPrice;
-  final double? maximumPrice;
 }

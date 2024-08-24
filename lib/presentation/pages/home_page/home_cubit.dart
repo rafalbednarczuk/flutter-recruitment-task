@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter_recruitment_task/models/get_products_page.dart';
+import 'package:flutter_recruitment_task/models/product_filter.dart';
 import 'package:flutter_recruitment_task/models/products_page.dart';
 import 'package:flutter_recruitment_task/presentation/pages/home_page/home_state.dart';
 import 'package:flutter_recruitment_task/repositories/products_repository.dart';
@@ -9,6 +10,12 @@ class HomeCubit extends Cubit<HomeState> {
 
   final ProductsRepository _productsRepository;
   var _param = GetProductsPage(pageNumber: 1);
+
+  Future<void> loadFirstPageWithFilter(ProductFilter productFilter) async {
+    emit(HomeState.initial().copyWith(productFilter: productFilter));
+    _param = GetProductsPage(pageNumber: 1);
+    await getNextPage();
+  }
 
   Future<void> getNextPage() async {
     emit(
@@ -20,7 +27,10 @@ class HomeCubit extends Cubit<HomeState> {
     try {
       final totalPages = state.pages?.lastOrNull?.totalPages;
       if (totalPages != null && _param.pageNumber > totalPages) return;
-      final newPage = await _productsRepository.getProductsPage(_param);
+      final newPage = await _productsRepository.getProductsPage(
+        param: _param,
+        productFilter: state.productFilter,
+      );
       _param = _param.increasePageNumber();
       final updatedPages = [...(state.pages ?? <ProductsPage>[]), newPage];
       emit(
