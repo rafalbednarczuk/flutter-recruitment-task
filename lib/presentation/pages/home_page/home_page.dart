@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_recruitment_task/models/product_filter.dart';
 import 'package:flutter_recruitment_task/models/products_page.dart';
 import 'package:flutter_recruitment_task/presentation/pages/home_page/home_cubit.dart';
+import 'package:flutter_recruitment_task/presentation/pages/home_page/home_state.dart';
 import 'package:flutter_recruitment_task/presentation/pages/products_filter_page/product_filter_page.dart';
 import 'package:flutter_recruitment_task/presentation/widgets/big_text.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -42,7 +43,7 @@ class _HomePageState extends State<HomePage> {
       },
       child: BlocListener<HomeCubit, HomeState>(
         listener: (context, state) {
-          if (state is Loaded && state.scrollToProductIndex != null) {
+          if (!state.isLoading && state.scrollToProductIndex != null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _itemScrollController.scrollTo(
                 index: state.scrollToProductIndex!,
@@ -59,7 +60,7 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: OutlinedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.of(context)
                         .push(ProductFilterPage.page(ProductFilter.cleared()));
                   },
@@ -72,13 +73,16 @@ class _HomePageState extends State<HomePage> {
             padding: _mainPadding,
             child: BlocBuilder<HomeCubit, HomeState>(
               builder: (context, state) {
-                return switch (state) {
-                  Error() => BigText('Error: ${state.error}'),
-                  Loading() => const BigText('Loading...'),
-                  Loaded() => _LoadedWidget(
-                      state: state,
-                      itemScrollController: _itemScrollController),
-                };
+                if (state.isLoading) {
+                  return const BigText('Loading...');
+                }
+                if (state.error != null) {
+                  return BigText('Error: ${state.error}');
+                }
+                return _LoadedWidget(
+                  pages: state.pages!,
+                  itemScrollController: _itemScrollController,
+                );
               },
             ),
           ),
@@ -90,16 +94,16 @@ class _HomePageState extends State<HomePage> {
 
 class _LoadedWidget extends StatelessWidget {
   const _LoadedWidget({
-    required this.state,
+    required this.pages,
     required this.itemScrollController,
   });
 
-  final Loaded state;
+  final List<ProductsPage> pages;
   final ItemScrollController itemScrollController;
 
   @override
   Widget build(BuildContext context) {
-    final products = state.pages
+    final products = pages
         .map((page) => page.products)
         .expand((product) => product)
         .toList();
